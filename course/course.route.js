@@ -82,7 +82,7 @@ router.delete("/course/delete/:id", async (req, res) => {
   // send response
   return res.status(200).send({ message: " course deleted successfully " });
 });
-// courselist
+// courselist---------------
 router.get("/course/list", async (req, res) => {
   // extract pagination data from req.body
   const peginationData = req.body;
