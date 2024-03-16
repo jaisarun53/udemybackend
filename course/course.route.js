@@ -1,5 +1,6 @@
 import express from "express";
 import Course from "./course.model.js";
+import { validateMongoseIdFromReqParams } from "../middleware/validate.idFrom.reqParam.js";
 import {
   courseValidationSchema,
   paginationDataValidationSchema,
@@ -61,27 +62,31 @@ router.put("/course/edit/:id", async (req, res) => {
   return res.status(201).send({ message: "course updated successfully" });
 });
 // delete course------------------
-router.delete("/course/delete/:id", async (req, res) => {
-  // extract course id
-  const courseId = req.params.id;
-  //   // check valide mongo id
-  const isValidmongoseId = mongoose.isValidObjectId(courseId);
-  //   // if not valaide throw error
+router.delete(
+  "/course/delete/:id",
+  validateMongoseIdFromReqParams,
+  async (req, res) => {
+    // // extract course id
+    const courseId = req.params.id;
+    // //   // check valide mongo id
+    // const isValidmongoseId = mongoose.isValidObjectId(courseId);
+    // //   // if not valaide throw error
 
-  if (!isValidmongoseId) {
-    return res.status(400).send({ message: "invalid mongose id" });
+    // if (!isValidmongoseId) {
+    //   return res.status(400).send({ message: "invalid mongose id" });
+    // }
+    // find course by id
+    const course = await Course.findOne({ _id: courseId });
+    // if not course throw error
+    if (!course) {
+      return res.status(400).send({ message: "course doesnot exist" });
+    }
+    // delete course
+    await Course.deleteOne({ _id: courseId });
+    // send response
+    return res.status(200).send({ message: " course deleted successfully " });
   }
-  // find course by id
-  const course = await Course.findOne({ _id: courseId });
-  // if not course throw error
-  if (!course) {
-    return res.status(400).send({ message: "course doesnot exist" });
-  }
-  // delete course
-  await Course.deleteOne({ _id: courseId });
-  // send response
-  return res.status(200).send({ message: " course deleted successfully " });
-});
+);
 // courselist---------------
 router.get("/course/list", async (req, res) => {
   // extract pagination data from req.body
